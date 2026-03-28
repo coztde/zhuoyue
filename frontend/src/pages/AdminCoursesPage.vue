@@ -53,11 +53,13 @@
 import AdminCourseManagerTabs from '@/components/AdminCourseManagerTabs.vue'
 import GlassPanel from '@/components/GlassPanel.vue'
 import { useAdminLoginModal } from '@/composables/useAdminLoginModal'
+import { useGlobalNotice } from '@/composables/useGlobalNotice'
 import { api } from '@/services/api'
 import type { AdminCourse } from '@/types/models'
 import { computed, onMounted, reactive, ref } from 'vue'
 
 const { openAdminLoginModal } = useAdminLoginModal()
+const { showNotice } = useGlobalNotice()
 const courses = ref<AdminCourse[]>([])
 const message = ref('')
 const messageType = ref<'success' | 'error'>('success')
@@ -100,6 +102,7 @@ async function submitCourse() {
     })
     messageType.value = 'success'
     message.value = '课程阶段已发布'
+    showNotice('新增课程阶段成功', 'success')
     Object.assign(form, {
       title: '',
       stageOrder: 1,

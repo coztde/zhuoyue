@@ -2,7 +2,7 @@
   <Transition name="global-notice-fade">
     <div
       v-if="visible"
-      class="fixed right-6 top-6 z-[70] max-w-md border px-4 py-3 text-sm shadow-[0_18px_60px_rgba(2,8,23,0.45)] backdrop-blur-md"
+      class="fixed left-1/2 top-6 z-[70] w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 border px-4 py-3 text-sm shadow-[0_18px_60px_rgba(2,8,23,0.45)] backdrop-blur-md"
       :class="noticeClass"
     >
       <div class="flex items-start justify-between gap-4">

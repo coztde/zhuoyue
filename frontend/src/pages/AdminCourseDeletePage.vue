@@ -60,11 +60,13 @@ import AdminCourseManagerTabs from '@/components/AdminCourseManagerTabs.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import GlassPanel from '@/components/GlassPanel.vue'
 import { useAdminLoginModal } from '@/composables/useAdminLoginModal'
+import { useGlobalNotice } from '@/composables/useGlobalNotice'
 import { api } from '@/services/api'
 import type { AdminCourse } from '@/types/models'
 import { onMounted, ref } from 'vue'
 
 const { openAdminLoginModal } = useAdminLoginModal()
+const { showNotice } = useGlobalNotice()
 const courses = ref<AdminCourse[]>([])
 const loading = ref(false)
 const deletingId = ref<string | null>(null)
@@ -118,12 +120,14 @@ async function confirmDelete() {
     courses.value = courses.value.filter((course) => course.id !== courseId)
     messageType.value = 'success'
     message.value = '课程阶段已删除'
+    showNotice('删除课程阶段成功', 'success')
   } catch (error) {
     const nextMessage = error instanceof Error ? error.message : '删除失败，请稍后重试'
     if (nextMessage.includes('不存在')) {
       await loadCourses()
       messageType.value = 'info'
       message.value = '课程阶段已不存在，列表已自动刷新'
+      showNotice('课程阶段已不存在，列表已自动刷新', 'info')
     } else {
       messageType.value = 'error'
       message.value = nextMessage
