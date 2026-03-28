@@ -13,6 +13,7 @@ const router = createRouter({
     { path: '/ai-qa', name: 'ai-qa', component: () => import('@/pages/AiQaPage.vue') },
     { path: '/admin/courses', redirect: '/admin/courses/create' },
     { path: '/admin/courses/create', name: 'admin-courses-create', component: () => import('@/pages/AdminCoursesPage.vue') },
+    { path: '/admin/courses/edit', name: 'admin-courses-edit', component: () => import('@/pages/AdminCourseEditPage.vue') },
     { path: '/admin/courses/delete', name: 'admin-courses-delete', component: () => import('@/pages/AdminCourseDeletePage.vue') },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
