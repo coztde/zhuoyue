@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 管理员认证服务实现。
@@ -39,6 +40,9 @@ public class AdminAuthServiceImpl implements AdminAuthService {
      * 单机开发环境先降级到内存会话，保证联调可以继续。
      */
     private final Map<String, SessionState> localSessionStore = new ConcurrentHashMap<>();
+
+    /** 是否已经打过 Redis 不可用的 WARN 日志，避免每次请求都刷屏 */
+    private final AtomicBoolean redisWarnLogged = new AtomicBoolean(false);
 
     public AdminAuthServiceImpl(AdminUserMapper adminUserMapper,
                                 StringRedisTemplate stringRedisTemplate) {
@@ -100,7 +104,11 @@ public class AdminAuthServiceImpl implements AdminAuthService {
                     Duration.ofSeconds(SESSION_EXPIRE_SECONDS)
             );
         } catch (Exception exception) {
-            log.warn("Redis 不可用，管理员会话已降级到本地内存缓存");
+            if (redisWarnLogged.compareAndSet(false, true)) {
+                log.warn("Redis 不可用，会话降级到本地内存缓存（后续相同警告将降为 DEBUG 级别）");
+            } else {
+                log.debug("Redis 不可用，会话写入本地内存缓存");
+            }
         }
     }
 
@@ -111,7 +119,12 @@ public class AdminAuthServiceImpl implements AdminAuthService {
                 return redisValue;
             }
         } catch (Exception exception) {
-            log.warn("读取 Redis 会话失败，尝试走本地内存会话");
+            // 首次失败打 WARN，后续只打 debug，避免每次请求都刷屏
+            if (redisWarnLogged.compareAndSet(false, true)) {
+                log.warn("Redis 不可用，会话降级到本地内存缓存（后续相同警告将降为 DEBUG 级别）");
+            } else {
+                log.debug("读取 Redis 会话失败，继续使用本地内存会话");
+            }
         }
 
         SessionState localSession = localSessionStore.get(token);
@@ -130,7 +143,7 @@ public class AdminAuthServiceImpl implements AdminAuthService {
         try {
             stringRedisTemplate.expire(CacheConstants.ADMIN_SESSION_PREFIX + token, Duration.ofSeconds(SESSION_EXPIRE_SECONDS));
         } catch (Exception exception) {
-            log.warn("刷新 Redis 会话过期时间失败，继续使用本地内存会话");
+            log.debug("刷新 Redis 会话过期时间失败，继续使用本地内存会话");
         }
     }
 
