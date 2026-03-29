@@ -40,6 +40,21 @@ mybatis-plus:
     db-config:
       id-type: assign_id
 
+# GitHub / Gitee API Token 配置，用于同步学生 commit 数据
+git:
+  sync:
+    github-token: ${GITHUB_TOKEN:}
+    gitee-token: ${GITEE_TOKEN:}
+
+# LangChain4j 千问大模型配置，用于 AI 代码分析功能
+langchain4j:
+  community:
+    dashscope:
+      chat-model:
+        api-key: ${DASHSCOPE_API_KEY:sk-b6b609968c494397bdd7e12b40bf68de}
+        model-name: qwen-turbo
+        max-tokens: 2000
+
 logging:
   level:
     com.zhuoyue.platform: INFO

@@ -17,5 +17,6 @@ const tabs = [
   { label: '新增阶段', to: '/admin/courses/create' },
   { label: '修改阶段', to: '/admin/courses/edit' },
   { label: '删除阶段', to: '/admin/courses/delete' },
+  { label: '学生管理', to: '/admin/students' },
 ]
 </script>

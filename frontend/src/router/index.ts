@@ -15,6 +15,7 @@ const router = createRouter({
     { path: '/admin/courses/create', name: 'admin-courses-create', component: () => import('@/pages/AdminCoursesPage.vue') },
     { path: '/admin/courses/edit', name: 'admin-courses-edit', component: () => import('@/pages/AdminCourseEditPage.vue') },
     { path: '/admin/courses/delete', name: 'admin-courses-delete', component: () => import('@/pages/AdminCourseDeletePage.vue') },
+    { path: '/admin/students', name: 'admin-students', component: () => import('@/pages/AdminStudentsPage.vue') },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 })

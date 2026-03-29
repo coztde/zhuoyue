@@ -8,6 +8,10 @@ import type {
   AdminCourse,
   ApiResult,
   MissionStage,
+  StudentProfile,
+  StudentRepo,
+  StageProgressVO,
+  LeaderboardItem,
 } from '@/types/models'
 
 /**
@@ -150,5 +154,76 @@ export const api = {
   },
   deleteCourse(courseId: string | number): Promise<void> {
     return unwrap(request.delete<ApiResult<void>>(`/api/admin/courses/${courseId}`))
+  },
+
+  // ── 排行榜（公开） ──────────────────────────────────────
+  getLeaderboard(): Promise<LeaderboardItem[]> {
+    return unwrap(request.get<ApiResult<LeaderboardItem[]>>('/api/public/leaderboard'))
+  },
+  getLeaderboardFull(): Promise<LeaderboardItem[]> {
+    return unwrap(request.get<ApiResult<LeaderboardItem[]>>('/api/public/leaderboard/full'))
+  },
+
+  // ── 学生管理（管理员） ──────────────────────────────────
+  getAdminStudents(): Promise<StudentProfile[]> {
+    return unwrap(request.get<ApiResult<StudentProfile[]>>('/api/admin/students'))
+  },
+  createStudent(payload: Pick<StudentProfile, 'realName' | 'platform' | 'platformUsername'>): Promise<StudentProfile> {
+    return unwrap(request.post<ApiResult<StudentProfile>>('/api/admin/students', payload))
+  },
+  updateStudent(id: string, payload: Pick<StudentProfile, 'realName' | 'platform' | 'platformUsername'>): Promise<StudentProfile> {
+    return unwrap(request.put<ApiResult<StudentProfile>>(`/api/admin/students/${id}`, payload))
+  },
+  deleteStudent(id: string): Promise<void> {
+    return unwrap(request.delete<ApiResult<void>>(`/api/admin/students/${id}`))
+  },
+
+  // ── 仓库管理（管理员） ──────────────────────────────────
+  getStudentRepos(studentId: string): Promise<StudentRepo[]> {
+    return unwrap(request.get<ApiResult<StudentRepo[]>>(`/api/admin/students/${studentId}/repos`))
+  },
+  addStudentRepo(studentId: string, repoName: string, platform: string): Promise<StudentRepo> {
+    return unwrap(request.post<ApiResult<StudentRepo>>(`/api/admin/students/${studentId}/repos`, { repoName, platform }))
+  },
+  scanStudentRepos(studentId: string): Promise<{ added: number }> {
+    return unwrap(request.post<ApiResult<{ added: number }>>(`/api/admin/students/${studentId}/repos/scan`))
+  },
+  linkPageRepo(studentId: string): Promise<StudentRepo> {
+    return unwrap(request.post<ApiResult<StudentRepo>>(`/api/admin/students/${studentId}/repos/link-page`))
+  },
+  deleteStudentRepo(studentId: string, repoId: string): Promise<void> {
+    return unwrap(request.delete<ApiResult<void>>(`/api/admin/students/${studentId}/repos/${repoId}`))
+  },
+  setPrimaryRepo(studentId: string, repoId: string): Promise<StudentRepo> {
+    return unwrap(request.put<ApiResult<StudentRepo>>(`/api/admin/students/${studentId}/repos/${repoId}/primary`))
+  },
+
+  // ── AI 分析（管理员） ──────────────────────────────────
+  // repoId 可选，不传则使用主仓库
+  analyzeStage(studentId: string, stageId: string, repoId?: string): Promise<StageProgressVO> {
+    const params = repoId ? { repoId } : {}
+    return unwrap(request.post<ApiResult<StageProgressVO>>(`/api/admin/ai/analyze/${studentId}/${stageId}`, params))
+  },
+  // 批量分析单个学生所有阶段，repoId 可选
+  analyzeStudent(studentId: string, repoId?: string): Promise<string> {
+    const params = repoId ? { repoId } : {}
+    return unwrap(request.post<ApiResult<string>>(`/api/admin/ai/analyze/${studentId}`, params))
+  },
+  analyzeAll(): Promise<string> {
+    return unwrap(request.post<ApiResult<string>>('/api/admin/ai/analyze/all'))
+  },
+  getStudentProgress(studentId: string): Promise<StageProgressVO[]> {
+    return unwrap(request.get<ApiResult<StageProgressVO[]>>(`/api/admin/ai/progress/${studentId}`))
+  },
+  updateManualScore(progressId: string, manualScore: number | null, manualFeedback: string | null): Promise<StageProgressVO> {
+    return unwrap(request.put<ApiResult<StageProgressVO>>(`/api/admin/ai/progress/${progressId}/manual`, { manualScore, manualFeedback }))
+  },
+
+  // ── Git 同步（管理员） ──────────────────────────────────
+  syncAll(): Promise<void> {
+    return unwrap(request.post<ApiResult<void>>('/api/admin/sync/all'))
+  },
+  syncStudent(id: string): Promise<void> {
+    return unwrap(request.post<ApiResult<void>>(`/api/admin/sync/${id}`))
   },
 }
