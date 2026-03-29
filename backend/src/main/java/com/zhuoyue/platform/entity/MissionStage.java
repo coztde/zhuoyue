@@ -44,6 +44,22 @@ public class MissionStage {
     private Integer stageOrder;
 
     /**
+     * 阶段开始时间。用于判断学生 commit 是否在有效时间窗口内。
+     */
+    private LocalDateTime startTime;
+
+    /**
+     * 阶段截止时间。为 null 表示无截止限制，有任意 commit 即视为完成。
+     */
+    private LocalDateTime deadline;
+
+    /**
+     * 详细任务描述，供 AI 分析时作为「任务要求」输入。
+     * 比 taskTitle 更详细，可描述具体技术要求、验收标准等。
+     */
+    private String taskDescription;
+
+    /**
      * 创建时间。
      */
     private LocalDateTime createdAt;

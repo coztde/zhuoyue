@@ -3,13 +3,14 @@ package com.zhuoyue.platform;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * 项目启动入口。
- * 当前版本只保留真实在线的公开展示、课程管理和管理员登录能力，
- * 因此这里不再开启调度和 Git 平台属性绑定，只保留最基础的启动配置。
+ * @EnableScheduling 开启定时任务支持，用于每30分钟自动同步学生 Git commit 数据。
  */
 @SpringBootApplication
+@EnableScheduling
 @MapperScan("com.zhuoyue.platform.mapper")
 public class ZhuoyuePlatformApplication {
 
