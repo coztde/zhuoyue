@@ -102,16 +102,17 @@ public class CozeApiClient {
                                     }
                                 }
                             }
-                            onDone.run();
-                        } catch (Exception e) {
-                            // InterruptedException 包装为 IOException 时表示被 abort 主动中断，属正常流程
-                            if (e.getCause() instanceof InterruptedException) {
-                                log.info("Coze 流式读取被中断（用户 abort）");
-                                // 恢复中断标志，让外层 Controller 能正确识别并发送 aborted 事件
-                                Thread.currentThread().interrupt();
-                            } else {
-                                log.error("Coze 流式读取异常：{}", e.getMessage(), e);
+                            // 正常结束（非中断）才触发 onDone
+                            if (!Thread.currentThread().isInterrupted()) {
+                                onDone.run();
                             }
+                        } catch (Exception e) {
+                            if (e.getCause() instanceof InterruptedException) {
+                                // 被 abort 主动中断，恢复中断标志后直接返回，不触发 onError
+                                Thread.currentThread().interrupt();
+                                return null;
+                            }
+                            log.error("Coze 流式读取异常：{}", e.getMessage(), e);
                             onError.accept("流式读取异常：" + e.getMessage());
                         }
                         return null;
