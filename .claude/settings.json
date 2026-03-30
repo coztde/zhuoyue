@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \":*)"
+    ],
+    "additionalDirectories": [
+      "f:\\Project\\rep\\zhuoyue\\zhuoyue\\backend\\sql\\postgresql"
+    ]
+  }
+}

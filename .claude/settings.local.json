@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx vue-tsc:*)",
+      "Bash(f:/Project/rep/zhuoyue/zhuoyue/backend/sql/postgresql/01_zhuoyue_platform_full.sql:*)"
+    ]
+  }
+}

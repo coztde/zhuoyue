@@ -54,6 +54,12 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- WebSocket，用于 Wiki 实时编辑通知 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+
         <!-- LangChain4j Spring Boot 集成，用于 AI 分析功能，后续 RAG 知识库也在此框架扩展 -->
         <dependency>
             <groupId>dev.langchain4j</groupId>

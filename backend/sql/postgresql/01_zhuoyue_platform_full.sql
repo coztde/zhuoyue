@@ -159,3 +159,74 @@ ALTER TABLE student_stage_progress
 -- 新增主分析仓库标记字段（2026-03-29）
 ALTER TABLE student_repo
   ADD COLUMN IF NOT EXISTS is_primary BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- =========================================================
+-- Wiki 板块（2026-03-30）
+-- =========================================================
+
+CREATE TABLE IF NOT EXISTS wiki_post (
+  id            BIGSERIAL     PRIMARY KEY,
+  title         VARCHAR(200)  NOT NULL,
+  content       TEXT          NOT NULL,
+  author_name   VARCHAR(50)   NOT NULL DEFAULT '匿名',
+  author_token  VARCHAR(64)   NOT NULL,
+  version       INTEGER       NOT NULL DEFAULT 1,
+  like_count    INTEGER       NOT NULL DEFAULT 0,
+  comment_count INTEGER       NOT NULL DEFAULT 0,
+  report_count  INTEGER       NOT NULL DEFAULT 0,
+  heat_score    FLOAT         NOT NULL DEFAULT 0,
+  is_hidden     BOOLEAN       NOT NULL DEFAULT FALSE,
+  created_at    TIMESTAMP     NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMP     NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS wiki_comment (
+  id            BIGSERIAL     PRIMARY KEY,
+  post_id       BIGINT        NOT NULL REFERENCES wiki_post(id) ON DELETE CASCADE,
+  parent_id     BIGINT        REFERENCES wiki_comment(id) ON DELETE CASCADE,
+  author_name   VARCHAR(50)   NOT NULL DEFAULT '匿名',
+  author_token  VARCHAR(64)   NOT NULL,
+  content       TEXT          NOT NULL,
+  like_count    INTEGER       NOT NULL DEFAULT 0,
+  report_count  INTEGER       NOT NULL DEFAULT 0,
+  is_hidden     BOOLEAN       NOT NULL DEFAULT FALSE,
+  created_at    TIMESTAMP     NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS wiki_like (
+  id           BIGSERIAL    PRIMARY KEY,
+  target_type  VARCHAR(10)  NOT NULL,
+  target_id    BIGINT       NOT NULL,
+  voter_token  VARCHAR(64)  NOT NULL,
+  created_at   TIMESTAMP    NOT NULL DEFAULT NOW(),
+  UNIQUE(target_type, target_id, voter_token)
+);
+
+CREATE TABLE IF NOT EXISTS wiki_report (
+  id             BIGSERIAL    PRIMARY KEY,
+  target_type    VARCHAR(10)  NOT NULL,
+  target_id      BIGINT       NOT NULL,
+  reason         VARCHAR(200),
+  reporter_token VARCHAR(64)  NOT NULL,
+  is_handled     BOOLEAN      NOT NULL DEFAULT FALSE,
+  created_at     TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_wiki_post_heat      ON wiki_post(heat_score DESC);
+CREATE INDEX IF NOT EXISTS idx_wiki_post_created   ON wiki_post(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_wiki_comment_post   ON wiki_comment(post_id);
+CREATE INDEX IF NOT EXISTS idx_wiki_comment_parent ON wiki_comment(parent_id);
+CREATE INDEX IF NOT EXISTS idx_wiki_like_target    ON wiki_like(target_type, target_id);
+CREATE INDEX IF NOT EXISTS idx_wiki_report_handled ON wiki_report(is_handled);
+
+-- wiki_post 新增标签字段（2026-03-30）
+ALTER TABLE wiki_post
+  ADD COLUMN IF NOT EXISTS tag VARCHAR(20) NOT NULL DEFAULT '文章';
+
+CREATE INDEX IF NOT EXISTS idx_wiki_post_tag ON wiki_post(tag);
+
+-- wiki_post 编辑锁 + 修改理由字段（2026-03-30）
+ALTER TABLE wiki_post
+  ADD COLUMN IF NOT EXISTS editing_by_token VARCHAR(64),
+  ADD COLUMN IF NOT EXISTS editing_since    TIMESTAMP,
+  ADD COLUMN IF NOT EXISTS edit_reason      TEXT;
