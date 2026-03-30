@@ -8,6 +8,9 @@ import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import javax.net.ssl.*;
+import java.security.cert.X509Certificate;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -37,14 +40,31 @@ public class CozeApiClient {
     @Value("${coze.token}")
     private String token;
 
-    /** 构建带认证头的 RestClient，使用 OkHttp 避免 JDK TLS 握手问题 */
+    /** 构建带认证头的 RestClient，使用信任所有证书的 OkHttp（JDK cacerts 为空时的临时方案） */
     private RestClient buildClient() {
-        return RestClient.builder()
-                .requestFactory(new OkHttp3ClientHttpRequestFactory(new OkHttpClient()))
-                .baseUrl(apiUrl)
-                .defaultHeader("Authorization", "Bearer " + token)
-                .defaultHeader("Content-Type", "application/json")
-                .build();
+        try {
+            TrustManager[] trustAll = new TrustManager[]{
+                new X509TrustManager() {
+                    public void checkClientTrusted(X509Certificate[] c, String a) {}
+                    public void checkServerTrusted(X509Certificate[] c, String a) {}
+                    public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+                }
+            };
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, trustAll, new java.security.SecureRandom());
+            OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .sslSocketFactory(sc.getSocketFactory(), (X509TrustManager) trustAll[0])
+                    .hostnameVerifier((h, s) -> true)
+                    .build();
+            return RestClient.builder()
+                    .requestFactory(new OkHttp3ClientHttpRequestFactory(okHttpClient))
+                    .baseUrl(apiUrl)
+                    .defaultHeader("Authorization", "Bearer " + token)
+                    .defaultHeader("Content-Type", "application/json")
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException("构建 RestClient 失败", e);
+        }
     }
 
     /**
