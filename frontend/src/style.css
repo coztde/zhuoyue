@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Space+Grotesk:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,69 +7,110 @@
 @layer base {
   :root {
     color: #e2f3ff;
-    background:
-      radial-gradient(circle at top left, rgba(88, 216, 255, 0.18), transparent 28%),
-      radial-gradient(circle at top right, rgba(158, 255, 0, 0.08), transparent 20%),
-      linear-gradient(180deg, #071120 0%, #020817 62%, #00060f 100%);
     font-family: 'Space Grotesk', 'Microsoft YaHei', sans-serif;
   }
 
   body {
     @apply min-h-screen overflow-x-hidden bg-ink text-slate-100;
+    /* 深色背景 + 青色网格 + 光晕 */
+    background-color: #020817;
     background-image:
-      radial-gradient(circle at 15% 20%, rgba(88, 216, 255, 0.14), transparent 26%),
-      radial-gradient(circle at 85% 10%, rgba(78, 255, 198, 0.1), transparent 22%),
-      linear-gradient(180deg, rgba(2, 6, 23, 0.98), rgba(2, 8, 23, 0.98)),
-      linear-gradient(rgba(88, 216, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(88, 216, 255, 0.05) 1px, transparent 1px);
-    background-size: auto, auto, auto, 42px 42px, 42px 42px;
+      radial-gradient(ellipse at 15% 0%, rgba(88, 216, 255, 0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 0%, rgba(78, 255, 198, 0.07) 0%, transparent 40%),
+      linear-gradient(rgba(88, 216, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(88, 216, 255, 0.04) 1px, transparent 1px);
+    background-size: auto, auto, 48px 48px, 48px 48px;
   }
 
-  * {
-    @apply border-slate-800;
+  /* 扫描线叠加层 */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 4px
+    );
   }
 
-  ::selection {
-    @apply bg-cyan-300/30 text-white;
-  }
+  * { @apply border-slate-800; }
 
-  a {
-    @apply text-inherit no-underline;
+  ::selection { @apply bg-cyan-300/25 text-white; }
+
+  a { @apply text-inherit no-underline; }
+
+  /* 等宽字体用于数字/代码展示 */
+  .font-code {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
   }
 }
 
 @layer components {
+  /* 核心面板：无圆角方块，青色细边框，磨砂背景 */
+  .panel {
+    @apply rounded-none border border-cyan-300/10 bg-slate-950/60 backdrop-blur-xl;
+    box-shadow:
+      0 0 0 1px rgba(88, 216, 255, 0.04),
+      0 20px 80px rgba(3, 10, 24, 0.5),
+      inset 0 1px 0 rgba(186, 230, 253, 0.04);
+  }
+
+  /* 面板四角装饰 */
+  .panel-corner {
+    @apply relative;
+  }
+  .panel-corner::before,
+  .panel-corner::after {
+    content: '';
+    @apply absolute h-2 w-2 border-cyan-400/40;
+  }
+  .panel-corner::before {
+    @apply top-0 left-0 border-t border-l;
+  }
+  .panel-corner::after {
+    @apply top-0 right-0 border-t border-r;
+  }
+
   .page-title {
     @apply font-display text-3xl font-semibold tracking-[0.2em] text-white md:text-5xl;
-  }
-
-  .panel {
-    @apply rounded-none border border-cyan-300/10 bg-slate-950/55 backdrop-blur-xl shadow-glow;
-    box-shadow:
-      0 20px 80px rgba(3, 10, 24, 0.45),
-      inset 0 1px 0 rgba(186, 230, 253, 0.05);
-  }
-
-  .muted-copy {
-    @apply text-sm leading-6 text-slate-300/70;
   }
 
   .section-title {
     @apply font-display text-lg uppercase tracking-[0.35em] text-cyan-100/90;
   }
 
+  .muted-copy {
+    @apply text-sm leading-6 text-slate-400;
+  }
+
   .tech-pill {
-    @apply inline-flex items-center rounded-sm border border-cyan-300/20 bg-cyan-400/10 px-3 py-1 text-xs text-cyan-100;
+    @apply inline-flex items-center gap-1.5 border border-cyan-300/20 bg-cyan-400/8 px-3 py-1 text-xs text-cyan-200 font-code;
+  }
+
+  .status-chip {
+    @apply inline-flex items-center gap-1.5 border border-cyan-300/15 bg-cyan-400/8 px-2.5 py-1 text-[10px] uppercase tracking-[0.24em] text-cyan-100/80;
   }
 
   .subtle-grid {
     background-image:
-      linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
-    background-size: 20px 20px;
+      linear-gradient(rgba(88, 216, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(88, 216, 255, 0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
 
-  .status-chip {
-    @apply inline-flex items-center rounded-sm border border-cyan-300/15 bg-cyan-400/10 px-3 py-1 text-xs uppercase tracking-[0.24em] text-cyan-100/80;
+  /* 极客风数据展示数字 */
+  .stat-number {
+    @apply font-code text-3xl font-medium text-white tabular-nums;
+  }
+
+  /* 亮线分隔 */
+  .glow-line {
+    @apply h-px w-full;
+    background: linear-gradient(90deg, transparent, rgba(88, 216, 255, 0.3), transparent);
   }
 }

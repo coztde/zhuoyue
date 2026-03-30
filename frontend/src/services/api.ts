@@ -303,6 +303,70 @@ export const api = {
     return unwrap(request.delete<ApiResult<void>>(`/api/admin/wiki/comments/${id}`))
   },
 
+  // ── Coze 知识库问答（公开） ──────────────────────────────
+  /**
+   * 向 Coze 知识库提问，返回 SSE 流。
+   * 使用 fetch + ReadableStream 实现（EventSource 不支持 POST）。
+   * @param question 提问内容
+   * @param onChunk  收到每个文字块时的回调
+   * @param onDone   回答完成时的回调
+   * @param onError  发生错误时的回调
+   */
+  async cozeChatStream(
+    question: string,
+    onChunk: (text: string) => void,
+    onDone: () => void,
+    onError: (msg: string) => void,
+    onAborted?: () => void,
+    onRequestId?: (id: string) => void,
+  ): Promise<void> {
+    const baseURL = import.meta.env.VITE_API_BASE_URL ?? ''
+    const response = await fetch(`${baseURL}/api/coze/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question }),
+    })
+    // 响应头一到立即回调 requestId，此时流还未开始，前端可马上记录用于中断
+    const requestId = response.headers.get('X-Request-Id')
+    if (requestId) onRequestId?.(requestId)
+    if (!response.ok || !response.body) {
+      onError('请求失败，请稍后重试')
+      return
+    }
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder('utf-8')
+    let buffer = ''
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) { onDone(); break }
+      buffer += decoder.decode(value, { stream: true })
+      // SSE 格式：event 和 data 成对出现，以空行分隔
+      // Spring SseEmitter 格式示例："event:message\ndata:你好\n\n"
+      const blocks = buffer.split('\n\n')
+      buffer = blocks.pop() ?? ''
+      for (const block of blocks) {
+        const lines = block.split('\n')
+        let eventName = ''
+        let dataVal = ''
+        for (const line of lines) {
+          if (line.startsWith('event:')) eventName = line.slice(6).trim()
+          else if (line.startsWith('data:')) dataVal = line.slice(5).trim()
+        }
+        if (eventName === 'message' && dataVal) onChunk(dataVal)
+        else if (eventName === 'done') { onDone(); return }
+        else if (eventName === 'aborted') { onAborted?.(); return }
+        else if (eventName === 'error') onError(dataVal)
+      }
+    }
+  },
+
+  /** 中断指定请求的流式输出，后端真正关闭 Coze 连接 */
+  async cozeAbort(requestId: string): Promise<void> {
+    const baseURL = import.meta.env.VITE_API_BASE_URL ?? ''
+    await fetch(`${baseURL}/api/coze/abort/${requestId}`, { method: 'POST' })
+  },
+
   // ── Git 同步（管理员） ──────────────────────────────────
   syncAll(): Promise<void> {
     return unwrap(request.post<ApiResult<void>>('/api/admin/sync/all'))
