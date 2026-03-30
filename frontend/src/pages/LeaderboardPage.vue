@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-8">
     <!-- 顶部标题栏 -->
-    <GlassPanel eyebrow="卷王榜" title="课程阶段完成排行" :subtitle="lastSyncText">
+    <GlassPanel eyebrow="LEADERBOARD" title="卷王榜 · 课程阶段完成排行" :subtitle="lastSyncText">
       <div class="space-y-8 p-2">
 
         <!-- Top 3 大卡片 -->
@@ -9,9 +9,10 @@
           <div
             v-for="(item, idx) in top3"
             :key="item.id"
-            class="flex flex-col items-center gap-3 border border-cyan-300/10 bg-slate-950/40 p-6 text-center"
+            class="flex flex-col items-center gap-3 border bg-slate-950/40 p-6 text-center transition hover:bg-slate-950/60"
+            :class="idx === 0 ? 'border-yellow-400/30' : idx === 1 ? 'border-slate-400/25' : 'border-orange-400/20'"
           >
-            <span class="text-3xl">{{ medals[idx] }}</span>
+            <span class="font-code text-xs tracking-widest" :class="idx === 0 ? 'text-yellow-400/80' : idx === 1 ? 'text-slate-400/80' : 'text-orange-400/70'">#{{ idx + 1 }} {{ rankLabel[idx] }}</span>
             <img
               v-if="item.avatarUrl"
               :src="item.avatarUrl"
@@ -24,20 +25,20 @@
             </div>
             <p class="font-semibold text-white">{{ item.displayName || item.realName }}</p>
             <p v-if="item.displayName" class="text-xs text-slate-500">{{ item.realName }}</p>
-            <p class="text-3xl font-bold text-cyan-300">{{ item.completedStages }}<span class="text-sm text-slate-500">/{{ item.totalStages }}</span></p>
-            <p class="text-xs text-slate-500">已完成阶段</p>
+            <p class="font-code text-3xl font-medium text-cyan-300">{{ item.completedStages }}<span class="text-sm text-slate-500">/{{ item.totalStages }}</span></p>
+            <p class="font-code text-[10px] uppercase tracking-widest text-slate-500">STAGES DONE</p>
             <p v-if="item.latestCommit" class="text-xs text-slate-500">{{ formatTime(item.latestCommit) }}</p>
           </div>
         </div>
 
         <!-- 4~10 名列表 -->
-        <div v-if="rest.length > 0" class="border border-cyan-300/10 bg-slate-950/35">
+        <div v-if="rest.length > 0" class="border border-cyan-300/8 bg-slate-950/35">
           <div
             v-for="(item, idx) in rest"
             :key="item.id"
             class="flex items-center gap-4 border-b border-cyan-300/5 px-4 py-3 last:border-0"
           >
-            <span class="w-6 text-center text-sm font-bold text-slate-400">{{ idx + 4 }}</span>
+            <span class="font-code w-8 text-center text-xs text-slate-600">#{{ idx + 4 }}</span>
             <img
               v-if="item.avatarUrl"
               :src="item.avatarUrl"
@@ -51,9 +52,9 @@
             <div class="min-w-0 flex-1">
               <p class="truncate text-sm font-medium text-white">{{ item.displayName || item.realName }}</p>
               <div class="mt-1 flex items-center gap-2">
-                <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-800">
+                <div class="h-px flex-1 overflow-hidden bg-slate-800">
                   <div
-                    class="h-full rounded-full bg-cyan-400/70 transition-all"
+                    class="h-full bg-cyan-400/60 transition-all"
                     :style="{ width: item.totalStages > 0 ? `${(item.completedStages / item.totalStages) * 100}%` : '0%' }"
                   />
                 </div>
@@ -65,15 +66,19 @@
         </div>
 
         <!-- 空状态 -->
-        <div v-if="!loading && top10.length === 0" class="py-16 text-center text-slate-500">
-          榜单数据加载中，请管理员先录入学生并触发同步
+        <div v-if="!loading && top10.length === 0" class="py-16 text-center">
+          <p class="font-code text-xs text-cyan-400/30 mb-2">// NO_DATA</p>
+          <p class="text-sm text-slate-500">榜单数据加载中，请管理员先录入学生并触发同步</p>
         </div>
-        <div v-if="loading" class="py-16 text-center text-slate-500">加载中...</div>
+        <div v-if="loading" class="flex items-center justify-center gap-3 py-16">
+          <span class="h-4 w-4 animate-spin rounded-full border-2 border-cyan-300/20 border-t-cyan-300"></span>
+          <span class="font-code text-xs text-slate-500">LOADING...</span>
+        </div>
       </div>
     </GlassPanel>
 
     <!-- ECharts 各阶段完成人数分布 -->
-    <GlassPanel v-if="fullList.length > 0" eyebrow="数据分析" title="各阶段完成人数分布" subtitle="统计全员在每个课程阶段的完成情况">
+    <GlassPanel v-if="fullList.length > 0" eyebrow="ANALYTICS" title="各阶段完成人数分布" subtitle="统计全员在每个课程阶段的完成情况">
       <div ref="chartEl" class="h-64 w-full px-2 py-4" />
     </GlassPanel>
   </div>
@@ -87,6 +92,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import * as echarts from 'echarts'
 
 const medals = ['🥇', '🥈', '🥉']
+const rankLabel = ['CHAMPION', 'RUNNER-UP', 'THIRD']
 
 const loading = ref(true)
 const top10 = ref<LeaderboardItem[]>([])

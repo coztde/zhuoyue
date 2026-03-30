@@ -20,7 +20,7 @@ spring:
     redis:
       host: ${REDIS_HOST:127.0.0.1}
       port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:zx4221335}
+      password: ${REDIS_PASSWORD:}
       database: ${REDIS_DATABASE:0}
       timeout: 5s
   jackson:
@@ -55,6 +55,15 @@ langchain4j:
         model-name: qwen-turbo
         max-tokens: 2000
 
+# Coze 知识库 Bot 配置，token 通过环境变量 COZE_TOKEN 注入
+coze:
+  api-url: https://api.coze.cn
+  token: ${COZE_TOKEN:pat_eoRhdC5E7UzFCL1sLpHVg6PaHruk78qPKFv6hJcu78XxJQWACQuOLCw3la9DlU4V}
+  bot-id: ${COZE_BOT_ID:7623064910330658835}   # Coze Bot ID
+  poll-max-times: 20         # 最多轮询次数，防止无限等待
+  poll-interval-ms: 1000     # 每次轮询间隔（毫秒）
+
 logging:
   level:
     com.zhuoyue.platform: INFO
+    com.zhuoyue.platform.service: DEBUG

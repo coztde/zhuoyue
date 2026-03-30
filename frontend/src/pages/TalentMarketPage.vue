@@ -1,9 +1,10 @@
 <template>
   <div class="space-y-6">
-    <GlassPanel eyebrow="模块状态" title="人才市场" subtitle="待开发">
-      <div class="border border-dashed border-cyan-300/15 bg-slate-950/35 px-6 py-14 text-center">
-        <p class="text-2xl font-semibold text-white">人才市场待开发</p>
-        <p class="mt-3 text-sm text-slate-400">当前仅保留导航入口，导师筛选与学生卡片展示已暂时下线。</p>
+    <GlassPanel eyebrow="TALENT_MARKET" title="人才市场" subtitle="学生技能展示与项目成果陈列">
+      <div class="border border-dashed border-cyan-300/10 bg-slate-950/30 px-6 py-16 text-center">
+        <p class="font-code text-xs text-cyan-400/40 mb-3">// MODULE_STATUS: PENDING_DEVELOPMENT</p>
+        <p class="text-lg font-semibold text-white">人才市场待开发</p>
+        <p class="mt-2 text-sm text-slate-500">学生技能展示与项目成果模块正在建设中。</p>
       </div>
     </GlassPanel>
   </div>

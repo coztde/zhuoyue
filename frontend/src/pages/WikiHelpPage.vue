@@ -6,7 +6,7 @@
       <div class="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-cyan-400/8 blur-3xl"></div>
       <div class="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p class="mb-2 font-display text-xs uppercase tracking-[0.45em] text-cyan-200/55">社区</p>
+          <p class="mb-2 font-code text-[10px] uppercase tracking-[0.45em] text-cyan-400/40">// COMMUNITY</p>
           <h1 class="font-display text-2xl uppercase tracking-[0.3em] text-cyan-100/90">Wiki 求助</h1>
           <p class="mt-1.5 text-sm text-slate-400">任何人都可以发布文章或提问，共同维护知识库</p>
         </div>

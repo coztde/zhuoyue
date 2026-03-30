@@ -22,6 +22,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(adminAuthInterceptor)
                 .addPathPatterns("/api/admin/**")
+                // 登录接口本身不拦截
                 .excludePathPatterns("/api/admin/auth/login");
+        // /api/coze/** 为学生端公开接口，无需加入拦截器，此处仅作说明注释
     }
 }
