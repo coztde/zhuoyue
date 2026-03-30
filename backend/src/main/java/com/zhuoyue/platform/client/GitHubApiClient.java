@@ -1,7 +1,9 @@
 package com.zhuoyue.platform.client;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -18,7 +20,10 @@ import java.util.Map;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class GitHubApiClient {
+
+    private final OkHttp3ClientHttpRequestFactory okHttp3RequestFactory;
 
     private static final String BASE_URL = "https://api.github.com";
 
@@ -26,9 +31,11 @@ public class GitHubApiClient {
     @Value("${git.sync.github-token:}")
     private String githubToken;
 
-    /** 构建带认证头的 RestClient。 */
+    /** 构建带认证头的 RestClient，使用共享 OkHttp Bean 解决 TLS 问题。 */
     private RestClient buildClient() {
-        RestClient.Builder builder = RestClient.builder().baseUrl(BASE_URL);
+        RestClient.Builder builder = RestClient.builder()
+                .requestFactory(okHttp3RequestFactory)
+                .baseUrl(BASE_URL);
         if (!githubToken.isBlank()) {
             builder.defaultHeader("Authorization", "Bearer " + githubToken);
         }

@@ -276,6 +276,7 @@ async function sendMessage() {
   session.messages.push({ role: 'ai', content: '', streaming: true })
   await scrollToBottom()
 
+  let wasAborted = false
   try {
     await api.cozeChatStream(
       q,
@@ -291,20 +292,21 @@ async function sendMessage() {
         scrollToBottom()
       },
       (err) => {
+        if (wasAborted) return  // 中断后忽略 error 回调
         session.messages[idx] = { ...session.messages[idx], content: err || '请求失败，请稍后重试', streaming: false }
         loading.value = false
         currentRequestId.value = null
       },
       () => {
-        // 被中断
+        wasAborted = true
         session.messages[idx] = { ...session.messages[idx], content: session.messages[idx].content + ' _(已停止)_', streaming: false }
         loading.value = false
         currentRequestId.value = null
       },
-      // onRequestId：响应头一到立即记录，此时流还未开始，可用于中断
       (id) => { currentRequestId.value = id },
     )
   } catch (e) {
+    if (wasAborted) return
     session.messages[idx] = { ...session.messages[idx], content: e instanceof Error ? e.message : '请求失败', streaming: false }
     loading.value = false
     currentRequestId.value = null

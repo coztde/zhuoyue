@@ -1,15 +1,12 @@
 package com.zhuoyue.platform.client;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-
-import javax.net.ssl.*;
-import java.security.cert.X509Certificate;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -30,7 +27,10 @@ import java.util.function.Consumer;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class CozeApiClient {
+
+    private final OkHttp3ClientHttpRequestFactory okHttp3RequestFactory;
 
     /** Coze API 基础地址，国内版为 https://api.coze.cn */
     @Value("${coze.api-url}")
@@ -40,31 +40,14 @@ public class CozeApiClient {
     @Value("${coze.token}")
     private String token;
 
-    /** 构建带认证头的 RestClient，使用信任所有证书的 OkHttp（JDK cacerts 为空时的临时方案） */
+    /** 构建带认证头的 RestClient，使用共享 OkHttp Bean（信任所有证书，120s 读超时） */
     private RestClient buildClient() {
-        try {
-            TrustManager[] trustAll = new TrustManager[]{
-                new X509TrustManager() {
-                    public void checkClientTrusted(X509Certificate[] c, String a) {}
-                    public void checkServerTrusted(X509Certificate[] c, String a) {}
-                    public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
-                }
-            };
-            SSLContext sc = SSLContext.getInstance("TLS");
-            sc.init(null, trustAll, new java.security.SecureRandom());
-            OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                    .sslSocketFactory(sc.getSocketFactory(), (X509TrustManager) trustAll[0])
-                    .hostnameVerifier((h, s) -> true)
-                    .build();
-            return RestClient.builder()
-                    .requestFactory(new OkHttp3ClientHttpRequestFactory(okHttpClient))
-                    .baseUrl(apiUrl)
-                    .defaultHeader("Authorization", "Bearer " + token)
-                    .defaultHeader("Content-Type", "application/json")
-                    .build();
-        } catch (Exception e) {
-            throw new RuntimeException("构建 RestClient 失败", e);
-        }
+        return RestClient.builder()
+                .requestFactory(okHttp3RequestFactory)
+                .baseUrl(apiUrl)
+                .defaultHeader("Authorization", "Bearer " + token)
+                .defaultHeader("Content-Type", "application/json")
+                .build();
     }
 
     /**
@@ -130,8 +113,13 @@ public class CozeApiClient {
                                 onDone.run();
                             }
                         } catch (Exception e) {
-                            if (e.getCause() instanceof InterruptedException) {
-                                // 被 abort 主动中断，恢复中断标志后直接返回，不触发 onError
+                            // OkHttp 中断时抛 InterruptedIOException（直接继承 IOException，cause 为 null）
+                            boolean interrupted = e instanceof java.io.InterruptedIOException
+                                    || e instanceof InterruptedException
+                                    || e.getCause() instanceof InterruptedException
+                                    || Thread.currentThread().isInterrupted();
+                            if (interrupted) {
+                                log.info("Coze 流式读取被中断（用户 abort）");
                                 Thread.currentThread().interrupt();
                                 return null;
                             }

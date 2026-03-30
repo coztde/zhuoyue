@@ -91,6 +91,14 @@ public class PublicCozeController {
                                 errMsg -> safeSend(emitter, completed, SseEmitter.event().name("error").data(errMsg), true)
                         );
 
+                        // streamChat 内部捕获中断后返回 null，不抛异常
+                        // 需在此处补充检测，确保发送 aborted 事件
+                        if (Thread.currentThread().isInterrupted()) {
+                            log.info("Coze 流式输出被用户中断（streamChat 内部处理），requestId={}", requestId);
+                            safeSend(emitter, completed, SseEmitter.event().name("aborted").data("[ABORTED]"), true);
+                            return;
+                        }
+
                     } catch (Exception e) {
                         if (Thread.currentThread().isInterrupted() || e.getCause() instanceof InterruptedException) {
                             log.info("Coze 流式输出被用户中断，requestId={}", requestId);

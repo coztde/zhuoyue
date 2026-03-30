@@ -1,7 +1,9 @@
 package com.zhuoyue.platform.client;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -18,7 +20,10 @@ import java.util.Map;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class GiteeApiClient {
+
+    private final OkHttp3ClientHttpRequestFactory okHttp3RequestFactory;
 
     private static final String BASE_URL = "https://gitee.com/api/v5";
 
@@ -49,7 +54,7 @@ public class GiteeApiClient {
             if (since != null) url.append("&since=").append(since).append("+00:00");
             if (until != null) url.append("&until=").append(until).append("+00:00");
 
-            List<Map<String, Object>> raw = RestClient.create().get()
+            List<Map<String, Object>> raw = RestClient.builder().requestFactory(okHttp3RequestFactory).build().get()
                 .uri(url.toString()).retrieve().body(List.class);
 
             if (raw == null || raw.isEmpty()) return Collections.emptyList();
@@ -87,7 +92,7 @@ public class GiteeApiClient {
     public String fetchCommitDiff(String repoName, String sha) {
         try {
             String url = BASE_URL + "/repos/" + repoName + "/commits/" + sha + tokenParam(true);
-            Map<String, Object> detail = RestClient.create().get().uri(url).retrieve().body(Map.class);
+            Map<String, Object> detail = RestClient.builder().requestFactory(okHttp3RequestFactory).build().get().uri(url).retrieve().body(Map.class);
             if (detail == null) return "";
 
             List<Map<String, Object>> files = (List<Map<String, Object>>) detail.get("files");
@@ -118,7 +123,7 @@ public class GiteeApiClient {
     public List<String> fetchAllPublicRepos(String username) {
         try {
             String url = BASE_URL + "/users/" + username + "/repos?type=public&limit=100" + tokenParam(false);
-            List<Map<String, Object>> repos = RestClient.create().get().uri(url).retrieve().body(List.class);
+            List<Map<String, Object>> repos = RestClient.builder().requestFactory(okHttp3RequestFactory).build().get().uri(url).retrieve().body(List.class);
             if (repos == null || repos.isEmpty()) return Collections.emptyList();
             return repos.stream().map(r -> (String) r.get("full_name")).filter(n -> n != null).toList();
         } catch (Exception e) {
@@ -137,7 +142,7 @@ public class GiteeApiClient {
     public Map<String, Object> fetchUserInfo(String username) {
         try {
             String url = BASE_URL + "/users/" + username + tokenParam(true);
-            return RestClient.create().get().uri(url).retrieve().body(Map.class);
+            return RestClient.builder().requestFactory(okHttp3RequestFactory).build().get().uri(url).retrieve().body(Map.class);
         } catch (Exception e) {
             log.warn("获取 Gitee 用户信息失败，username={}，原因：{}", username, e.getMessage());
             return Collections.emptyMap();
