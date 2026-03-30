@@ -1,8 +1,10 @@
 package com.zhuoyue.platform.client;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -35,9 +37,10 @@ public class CozeApiClient {
     @Value("${coze.token}")
     private String token;
 
-    /** 构建带认证头的 RestClient，每次调用重新构建以确保 token 最新 */
+    /** 构建带认证头的 RestClient，使用 Apache HttpClient 5 避免 JDK TLS 握手问题 */
     private RestClient buildClient() {
         return RestClient.builder()
+                .requestFactory(new HttpComponentsClientHttpRequestFactory(HttpClients.createDefault()))
                 .baseUrl(apiUrl)
                 .defaultHeader("Authorization", "Bearer " + token)
                 .defaultHeader("Content-Type", "application/json")
