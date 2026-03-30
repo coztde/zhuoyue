@@ -10,3 +10,17 @@ Thumbs.db
 *.log
 
 backend/src/main/resources/application-local.yml
+
+# Claude Code 配置（本地工具，不需要提交）
+.claude/
+
+# IntelliJ IDEA 项目文件
+backend/.idea/
+backend/*.iml
+
+# Maven wrapper 本地配置
+backend/.mvn/
+
+# 临时文件
+Microsoft/
+question_stats.txt
