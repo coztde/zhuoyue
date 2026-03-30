@@ -12,4 +12,6 @@ public final class CacheConstants {
 
     public static final String ADMIN_SESSION_PREFIX = "zhuoyue:admin:session:";
 
+    public static final String WIKI_LIKES_PREFIX = "zhuoyue:wiki:likes:";
+
 }

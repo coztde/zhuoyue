@@ -3,6 +3,7 @@ package com.zhuoyue.platform.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zhuoyue.platform.common.constant.CacheConstants;
 import com.zhuoyue.platform.common.exception.BizException;
 import com.zhuoyue.platform.dto.WikiCommentRequest;
 import com.zhuoyue.platform.dto.WikiLikeRequest;
@@ -21,9 +22,11 @@ import com.zhuoyue.platform.vo.WikiCommentVO;
 import com.zhuoyue.platform.vo.WikiPostVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -40,6 +43,7 @@ public class WikiServiceImpl implements WikiService {
     private final WikiCommentMapper commentMapper;
     private final WikiLikeMapper likeMapper;
     private final WikiReportMapper reportMapper;
+    private final StringRedisTemplate redisTemplate;
 
     @Override
     public Page<WikiPostVO> listPosts(int pageNum, int pageSize, String sort, String keyword, String tag, String voterToken) {
@@ -255,9 +259,12 @@ public class WikiServiceImpl implements WikiService {
                 .eq(WikiLike::getVoterToken, token));
 
         boolean isPost = "POST".equals(request.getTargetType());
+        String likesKey = CacheConstants.WIKI_LIKES_PREFIX + request.getTargetType() + ":" + token;
+        String targetIdStr = String.valueOf(request.getTargetId());
         if (existing != null) {
             // 取消点赞
             likeMapper.deleteById(existing.getId());
+            redisTemplate.opsForSet().remove(likesKey, targetIdStr);
             if (isPost) {
                 postMapper.update(null, new LambdaUpdateWrapper<WikiPost>()
                         .eq(WikiPost::getId, request.getTargetId())
@@ -275,6 +282,8 @@ public class WikiServiceImpl implements WikiService {
             like.setVoterToken(token);
             like.setCreatedAt(LocalDateTime.now());
             likeMapper.insert(like);
+            redisTemplate.opsForSet().add(likesKey, targetIdStr);
+            redisTemplate.expire(likesKey, LIKES_TTL);
             if (isPost) {
                 postMapper.update(null, new LambdaUpdateWrapper<WikiPost>()
                         .eq(WikiPost::getId, request.getTargetId())
@@ -415,12 +424,24 @@ public class WikiServiceImpl implements WikiService {
                 .set(WikiPost::getHeatScore, Math.max(heat, 0)));
     }
 
+    private static final Duration LIKES_TTL = Duration.ofHours(2);
+
     private Set<Long> getLikedIds(String targetType, String voterToken) {
         if (voterToken == null || voterToken.isBlank()) return Set.of();
-        return likeMapper.selectList(new LambdaQueryWrapper<WikiLike>()
+        String key = CacheConstants.WIKI_LIKES_PREFIX + targetType + ":" + voterToken;
+        Set<String> cached = redisTemplate.opsForSet().members(key);
+        if (cached != null && !cached.isEmpty()) {
+            return cached.stream().map(Long::valueOf).collect(Collectors.toSet());
+        }
+        Set<Long> ids = likeMapper.selectList(new LambdaQueryWrapper<WikiLike>()
                         .eq(WikiLike::getTargetType, targetType)
                         .eq(WikiLike::getVoterToken, voterToken))
                 .stream().map(WikiLike::getTargetId).collect(Collectors.toSet());
+        if (!ids.isEmpty()) {
+            redisTemplate.opsForSet().add(key, ids.stream().map(String::valueOf).toArray(String[]::new));
+            redisTemplate.expire(key, LIKES_TTL);
+        }
+        return ids;
     }
 
     private WikiPostVO toPostVO(WikiPost post, boolean liked, String voterToken) {

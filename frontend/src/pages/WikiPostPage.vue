@@ -247,6 +247,17 @@ const editorTag = ref<WikiTag>('文章')
 const editorReason = ref('')
 const editorError = ref('')
 const submittingPost = ref(false)
+let lockHeartbeat: ReturnType<typeof setInterval> | null = null
+
+function startLockHeartbeat(postId: string) {
+  lockHeartbeat = setInterval(async () => {
+    try { await api.lockWikiPost(postId) } catch {}
+  }, 3 * 60 * 1000)
+}
+
+function stopLockHeartbeat() {
+  if (lockHeartbeat) { clearInterval(lockHeartbeat); lockHeartbeat = null }
+}
 
 async function handleEditClick() {
   if (!post.value) return
@@ -260,6 +271,7 @@ async function handleEditClick() {
     editorReason.value = ''
     editorError.value = ''
     editorVisible.value = true
+    startLockHeartbeat(post.value.id)
   } catch (e: any) {
     showNotice(e.message || '获取编辑权限失败', 'error')
     post.value = await api.getWikiPost(post.value.id)
@@ -267,6 +279,7 @@ async function handleEditClick() {
 }
 
 async function closeEditor() {
+  stopLockHeartbeat()
   if (post.value) { try { await api.unlockWikiPost(post.value.id) } catch {} }
   editorVisible.value = false
 }
@@ -308,7 +321,7 @@ async function submitReport() {
 }
 
 onMounted(async () => { await loadPost(); await loadComments() })
-onUnmounted(async () => { if (post.value && editorVisible.value) { try { await api.unlockWikiPost(post.value.id) } catch {} } })
+onUnmounted(async () => { stopLockHeartbeat(); if (post.value && editorVisible.value) { try { await api.unlockWikiPost(post.value.id) } catch {} } })
 </script>
 
 <style scoped>

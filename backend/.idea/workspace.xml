@@ -5,17 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="80cf2ae1-f3eb-4060-8e02-005ba35e64e5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/maven-settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/maven-settings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sql/postgresql/01_zhuoyue_platform_full.sql" beforeDir="false" afterPath="$PROJECT_DIR$/sql/postgresql/01_zhuoyue_platform_full.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/zhuoyue/platform/config/MybatisPlusConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/zhuoyue/platform/config/MybatisPlusConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/pages/AdminStudentsPage.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/pages/AdminStudentsPage.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/pages/WikiHelpPage.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/pages/WikiHelpPage.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/router/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/router/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/services/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/services/api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/types/models.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/types/models.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.claude/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/../.claude/settings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/zhuoyue/platform/common/constant/CacheConstants.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/zhuoyue/platform/common/constant/CacheConstants.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/zhuoyue/platform/service/impl/WikiServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/zhuoyue/platform/service/impl/WikiServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/pages/WikiPostPage.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/pages/WikiPostPage.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,33 +34,33 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Maven.zhuoyue-platform [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.zhuoyue-platform [compile].executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;Spring Boot.ZhuoyuePlatformApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;F:/Project/rep/zhuoyue/zhuoyue/backend&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Maven.zhuoyue-platform [clean].executor": "Run",
+    "Maven.zhuoyue-platform [compile].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.ZhuoyuePlatformApplication.executor": "Run",
+    "git-widget-placeholder": "zt",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "F:/Project/rep/zhuoyue/zhuoyue/backend",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="ZhuoyuePlatformApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="zhuoyue-platform" />
@@ -93,7 +87,7 @@
       <updated>1774766364939</updated>
       <workItem from="1774766366148" duration="847000" />
       <workItem from="1774767243874" duration="8212000" />
-      <workItem from="1774844263058" duration="5626000" />
+      <workItem from="1774844263058" duration="7124000" />
     </task>
     <servers />
   </component>
