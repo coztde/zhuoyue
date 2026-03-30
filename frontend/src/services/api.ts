@@ -12,6 +12,11 @@ import type {
   StudentRepo,
   StageProgressVO,
   LeaderboardItem,
+  WikiPost,
+  WikiComment,
+  WikiReport,
+  WikiPageResult,
+  WikiTag,
 } from '@/types/models'
 
 /**
@@ -217,6 +222,85 @@ export const api = {
   },
   updateManualScore(progressId: string, manualScore: number | null, manualFeedback: string | null): Promise<StageProgressVO> {
     return unwrap(request.put<ApiResult<StageProgressVO>>(`/api/admin/ai/progress/${progressId}/manual`, { manualScore, manualFeedback }))
+  },
+
+  // ── Wiki（公开） ──────────────────────────────────────
+  getWikiPosts(page = 1, size = 20, sort = 'heat', keyword?: string, tag?: string): Promise<WikiPageResult<WikiPost>> {
+    const token = localStorage.getItem('wiki-author-token') ?? ''
+    return unwrap(request.get<ApiResult<WikiPageResult<WikiPost>>>('/api/public/wiki/posts', {
+      params: { page, size, sort, keyword, tag },
+      headers: { 'X-Wiki-Token': token },
+    }))
+  },
+  getWikiPost(id: string): Promise<WikiPost> {
+    const token = localStorage.getItem('wiki-author-token') ?? ''
+    return unwrap(request.get<ApiResult<WikiPost>>(`/api/public/wiki/posts/${id}`, {
+      headers: { 'X-Wiki-Token': token },
+    }))
+  },
+  createWikiPost(title: string, content: string, authorName: string, tag: WikiTag): Promise<WikiPost> {
+    const token = localStorage.getItem('wiki-author-token') ?? ''
+    return unwrap(request.post<ApiResult<WikiPost>>('/api/public/wiki/posts', {
+      title, content, authorName, tag, authorToken: token,
+    }))
+  },
+  updateWikiPost(id: string, title: string, content: string, authorName: string, version: number, tag: WikiTag, editReason: string): Promise<WikiPost> {
+    const token = localStorage.getItem('wiki-author-token') ?? ''
+    return unwrap(request.put<ApiResult<WikiPost>>(`/api/public/wiki/posts/${id}`, {
+      title, content, authorName, tag, authorToken: token, version, editReason,
+    }))
+  },
+  lockWikiPost(id: string): Promise<WikiPost> {
+    const token = localStorage.getItem('wiki-author-token') ?? ''
+    return unwrap(request.post<ApiResult<WikiPost>>(`/api/public/wiki/posts/${id}/lock`, {}, {
+      headers: { 'X-Wiki-Token': token },
+    }))
+  },
+  unlockWikiPost(id: string): Promise<void> {
+    const token = localStorage.getItem('wiki-author-token') ?? ''
+    return unwrap(request.post<ApiResult<void>>(`/api/public/wiki/posts/${id}/unlock`, {}, {
+      headers: { 'X-Wiki-Token': token },
+    }))
+  },
+  getWikiComments(postId: string): Promise<WikiComment[]> {
+    const token = localStorage.getItem('wiki-author-token') ?? ''
+    return unwrap(request.get<ApiResult<WikiComment[]>>(`/api/public/wiki/posts/${postId}/comments`, {
+      headers: { 'X-Wiki-Token': token },
+    }))
+  },
+  addWikiComment(postId: string, content: string, authorName: string, parentId?: string): Promise<WikiComment> {
+    const token = localStorage.getItem('wiki-author-token') ?? ''
+    return unwrap(request.post<ApiResult<WikiComment>>(`/api/public/wiki/posts/${postId}/comments`, {
+      content, authorName, authorToken: token, parentId,
+    }))
+  },
+  toggleWikiLike(targetType: 'POST' | 'COMMENT', targetId: string): Promise<WikiPost | null> {
+    const token = localStorage.getItem('wiki-author-token') ?? ''
+    return unwrap(request.post<ApiResult<WikiPost | null>>('/api/public/wiki/like', {
+      targetType, targetId, voterToken: token,
+    }, { headers: { 'X-Wiki-Token': token } }))
+  },
+  reportWiki(targetType: 'POST' | 'COMMENT', targetId: string, reason: string): Promise<void> {
+    const token = localStorage.getItem('wiki-author-token') ?? ''
+    return unwrap(request.post<ApiResult<void>>('/api/public/wiki/report', {
+      targetType, targetId, reason, reporterToken: token,
+    }))
+  },
+
+  // ── Wiki 管理员 ────────────────────────────────────────
+  adminGetWikiReports(page = 1, size = 20): Promise<WikiPageResult<WikiReport>> {
+    return unwrap(request.get<ApiResult<WikiPageResult<WikiReport>>>('/api/admin/wiki/reports', {
+      params: { page, size },
+    }))
+  },
+  adminHandleWikiReport(id: string): Promise<void> {
+    return unwrap(request.put<ApiResult<void>>(`/api/admin/wiki/reports/${id}/handle`))
+  },
+  adminDeleteWikiPost(id: string): Promise<void> {
+    return unwrap(request.delete<ApiResult<void>>(`/api/admin/wiki/posts/${id}`))
+  },
+  adminDeleteWikiComment(id: string): Promise<void> {
+    return unwrap(request.delete<ApiResult<void>>(`/api/admin/wiki/comments/${id}`))
   },
 
   // ── Git 同步（管理员） ──────────────────────────────────

@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \":*)",
+      "Read(//c/Users/admin/AppData/Local/Curbor/runtime/claude-runtime/home/.claude/**)"
+    ],
+    "additionalDirectories": [
+      "f:\\Project\\rep\\zhuoyue\\zhuoyue\\backend\\sql\\postgresql",
+      "C:\\Users\\admin\\AppData\\Local\\Curbor\\runtime\\claude-runtime\\home\\.claude"
+    ]
+  }
+}

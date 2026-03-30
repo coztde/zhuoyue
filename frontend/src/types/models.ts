@@ -72,6 +72,60 @@ export interface StageProgressVO {
   manualEdited?: boolean
 }
 
+export type WikiTag = '文章' | '问题' | '分享' | '公告'
+
+/** Wiki 文章。 */
+export interface WikiPost {
+  id: string
+  title: string
+  content: string
+  authorName: string
+  tag: WikiTag
+  version: number
+  likeCount: number
+  commentCount: number
+  heatScore: number
+  createdAt: string
+  updatedAt: string
+  liked: boolean
+  isAuthor: boolean
+  isEditing: boolean
+  editReason?: string
+}
+
+/** Wiki 评论（支持嵌套）。 */
+export interface WikiComment {
+  id: string
+  postId: string
+  parentId?: string
+  authorName: string
+  content: string
+  likeCount: number
+  createdAt: string
+  liked: boolean
+  isAuthor: boolean
+  children?: WikiComment[]
+}
+
+export interface WikiReport {
+  id: string
+  targetType: 'POST' | 'COMMENT'
+  targetId: string
+  postId?: string  // COMMENT类型时关联的文章ID
+  reason?: string
+  reporterToken: string
+  isHandled: boolean
+  createdAt: string
+}
+
+export interface WikiPageResult<T> {
+  records: T[]
+  total: number
+  current: number
+  size: number
+  pages: number
+}
+
 /** 排行榜条目（公开接口）。 */
 export interface LeaderboardItem {
   id: string
